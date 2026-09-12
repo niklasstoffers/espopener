@@ -41,6 +41,11 @@
 			path = API;
 			sourceTree = "<group>";
 		};
+		1496A84D30557B620089F271 /* Infrastructure */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Infrastructure;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +62,7 @@
 		148AB07F3053E52B00DE3DDA = {
 			isa = PBXGroup;
 			children = (
+				1496A84D30557B620089F271 /* Infrastructure */,
 				148AB0B03053F3C600DE3DDA /* API */,
 				148AB0893053E52B00DE3DDA /* Products */,
 				148AB0973053E6E100DE3DDA /* App */,
@@ -97,6 +103,7 @@
 				148AB0A63053E82300DE3DDA /* Models */,
 				148AB0A83053E82D00DE3DDA /* Services */,
 				148AB0B03053F3C600DE3DDA /* API */,
+				1496A84D30557B620089F271 /* Infrastructure */,
 			);
 			name = espopener;
 			packageProductDependencies = (

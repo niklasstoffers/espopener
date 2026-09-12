@@ -1,6 +1,6 @@
 import Foundation
 
-private let apiBasePath = "api"
+private let apiBasePath = "api/v1"
 
 enum ESPApiEndpoint: String {
     case status

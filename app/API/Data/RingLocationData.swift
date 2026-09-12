@@ -1,4 +1,4 @@
-enum RingLocation: String, Decodable {
+enum RingLocationData: String, Decodable {
     case frontDoor
     case apartmentDoor
 }

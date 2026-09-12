@@ -1,13 +1,20 @@
 import SwiftUI
 
 struct MainView: View {
+    @EnvironmentObject private var settings: AppSettings
+
     var body: some View {
-        NavigationStack() {
-            HomeView()
+        if settings.initialSetupComplete {
+            NavigationStack() {
+                HomeView()
+            }
+        } else {
+            SetupView()
         }
     }
 }
 
 #Preview {
     MainView()
+        .environmentObject(AppSettings())
 }

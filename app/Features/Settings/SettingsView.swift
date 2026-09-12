@@ -1,10 +1,13 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject private var settings: AppSettings
+
     var body: some View {
         Form {
             Section("General") {
-                Toggle("Auto Unlock", isOn: .constant(true))
+                Toggle("Auto Unlock", isOn: $settings.autoUnlock)
+                TextField("Server URL", text: $settings.serverURL)
             }
         }
         .navigationTitle("Settings")
@@ -14,4 +17,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+        .environmentObject(AppSettings())
 }
