@@ -12,7 +12,21 @@ protocol ESPApiTransportRequest {
 }
 
 extension ESPApiTransportRequest {
+    var method: HTTPMethod {
+        .get
+    }
+    
+    var queryItems: [URLQueryItem] {
+        []
+    }
+    
     var authorization: ESPApiAuthorization {
         .bearer
+    }
+}
+
+extension ESPApiTransportRequest where Body == EmptyRequestData {
+    var body: EmptyRequestData? {
+        nil
     }
 }

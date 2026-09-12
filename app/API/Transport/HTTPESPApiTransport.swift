@@ -9,6 +9,18 @@ final class HTTPESPApiTransport: ESPApiTransport {
         self.tokenProvider = tokenProvider
     }
 
+    private func makeEncoder() -> JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return encoder
+    }
+
+    private func makeDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }
+
     func send<Request: ESPApiTransportRequest>(
         _ request: Request
     ) async throws -> ESPApiResponse<Request.ResponseData> {
@@ -26,11 +38,22 @@ final class HTTPESPApiTransport: ESPApiTransport {
         urlRequest.httpMethod = request.method.rawValue
 
         switch request.authorization {
-        case .none:
-            break
+        case .setup(let token):
+            urlRequest.setValue("Setup \(token)", forHTTPHeaderField: "Authorization")
+        
+        case .invite(let token):
+            urlRequest.setValue("Invite \(token)", forHTTPHeaderField: "Authorization")
             
         case .bearer:
-            guard let token = try tokenProvider.token() else {
+            let token: String?
+            
+            do {
+                token = try tokenProvider.token()
+            } catch {
+                throw ESPApiTransportError.tokenProvider(error)
+            }
+            
+            guard let token else {
                 throw ESPApiTransportError.missingToken
             }
 
@@ -41,7 +64,7 @@ final class HTTPESPApiTransport: ESPApiTransport {
             urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
             do {
-                urlRequest.httpBody = try JSONEncoder().encode(body)
+                urlRequest.httpBody = try makeEncoder().encode(body)
             } catch {
                 throw ESPApiTransportError.encode(error)
             }
@@ -53,7 +76,14 @@ final class HTTPESPApiTransport: ESPApiTransport {
     private func fetchResponse<Response: Decodable>(
         for urlRequest: URLRequest,
     ) async throws -> ESPApiResponse<Response> {
-        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+        let data: Data
+        let response: URLResponse
+        
+        do {
+            (data, response) = try await URLSession.shared.data(for: urlRequest)
+        } catch {
+            throw ESPApiTransportError.network(error)
+        }
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw ESPApiTransportError.invalidResponse
@@ -64,7 +94,7 @@ final class HTTPESPApiTransport: ESPApiTransport {
         }
 
         do {
-            return try JSONDecoder().decode(ESPApiResponse<Response>.self, from: data)
+            return try makeDecoder().decode(ESPApiResponse<Response>.self, from: data)
         } catch {
             throw ESPApiTransportError.decode(error)
         }

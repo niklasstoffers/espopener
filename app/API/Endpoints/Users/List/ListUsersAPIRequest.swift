@@ -1,8 +1,8 @@
-struct UnlockEventsAPIRequest: PaginatedAPIRequest {
+struct ListUsersAPIRequest: PaginatedAPIRequest {
     typealias Body = EmptyRequestData
-    typealias ItemData = UnlockEventData
+    typealias ItemData = UserData
 
-    let endpoint: ESPApiEndpoint = .unlockEvents
+    let endpoint: ESPApiEndpoint = .users
     let pagination: PaginationQuery
 
     init(pagination: PaginationQuery = PaginationQuery()) {

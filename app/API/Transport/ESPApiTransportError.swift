@@ -4,4 +4,6 @@ enum ESPApiTransportError: Error {
     case encode(Error)
     case decode(Error)
     case missingToken
+    case tokenProvider(Error)
+    case network(Error)
 }

@@ -1,4 +1,5 @@
 enum ESPApiAuthorization {
-    case none
     case bearer
+    case setup(token: String)
+    case invite(token: String)
 }

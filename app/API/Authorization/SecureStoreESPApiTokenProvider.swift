@@ -1,4 +1,4 @@
-final class SecureStoreESPApiTokenProvider: ESPApiTokenProvider {
+struct SecureStoreESPApiTokenProvider: ESPApiTokenProvider {
     private let secureStore: any SecureStore
     
     init(secureStore: any SecureStore) {
