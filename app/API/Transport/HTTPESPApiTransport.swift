@@ -3,10 +3,16 @@ import Foundation
 final class HTTPESPApiTransport: ESPApiTransport {
     private let address: URL
     private let tokenProvider: any ESPApiTokenProvider
+    private let httpSession: any HTTPSession
     
-    init(address: URL, tokenProvider: any ESPApiTokenProvider) {
+    init(
+        address: URL, 
+        tokenProvider: any ESPApiTokenProvider,
+        httpSession: any HTTPSession
+    ) {
         self.address = address
         self.tokenProvider = tokenProvider
+        self.httpSession = httpSession
     }
 
     private func makeEncoder() -> JSONEncoder {
@@ -37,6 +43,16 @@ final class HTTPESPApiTransport: ESPApiTransport {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = request.method.rawValue
 
+        try configureAuthorization(on: &urlRequest, for: request)
+        try encodeRequestBody(on: &urlRequest, for: request)
+
+        return urlRequest
+    }
+
+    private func configureAuthorization<Request: ESPApiTransportRequest>(
+        on urlRequest: inout URLRequest,
+        for request: Request
+    ) throws {
         switch request.authorization {
         case .setup(let token):
             urlRequest.setValue("Setup \(token)", forHTTPHeaderField: "Authorization")
@@ -59,7 +75,12 @@ final class HTTPESPApiTransport: ESPApiTransport {
 
             urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-
+    }
+    
+    private func encodeRequestBody<Request: ESPApiTransportRequest>(
+        on urlRequest: inout URLRequest,
+        for request: Request
+    ) throws {
         if let body = request.body {
             urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
@@ -69,8 +90,6 @@ final class HTTPESPApiTransport: ESPApiTransport {
                 throw ESPApiTransportError.encode(error)
             }
         }
-
-        return urlRequest
     }
 
     private func fetchResponse<Response: Decodable>(
@@ -80,7 +99,7 @@ final class HTTPESPApiTransport: ESPApiTransport {
         let response: URLResponse
         
         do {
-            (data, response) = try await URLSession.shared.data(for: urlRequest)
+            (data, response) = try await httpSession.data(for: urlRequest)
         } catch {
             throw ESPApiTransportError.network(error)
         }
