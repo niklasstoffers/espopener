@@ -1,3 +1,3 @@
 struct BluetoothProvisioningResult: Equatable {
-    let setupToken: String
+    let tlsPublicKeyFingerprint: Fingerprint
 }
